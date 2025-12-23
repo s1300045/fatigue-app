@@ -1,0 +1,112 @@
+body {
+  font-family: sans-serif;
+  margin: 20px;
+}
+
+#posterLayout {
+  display: flex;
+  gap: 30px;
+}
+
+#calendarContainer, #formContainer {
+  flex: 1;
+}
+
+.numButtons button {
+  margin: 2px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  cursor: pointer;
+}
+
+.numButtons button.selected {
+  background: #007bff;
+  color: white;
+  border-color: #0056b3;
+}
+
+#calendar {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  min-height: 500px;
+}
+
+.fc {
+  font-size: 14px;
+}
+
+.fc-daygrid-day {
+  cursor: pointer;
+}
+
+/* 記録済みの日：数字に赤丸 */
+.fc-daygrid-day-number.recorded {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid red;
+  box-sizing: border-box;
+}
+
+/* 選択日の青枠 */
+.fc-daygrid-day.selected-day .fc-daygrid-day-frame {
+  outline: 2px solid #1e90ff;
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+
+#graphLayout {
+  display: flex;
+  gap: 30px;
+}
+
+#graphLayout canvas {
+  flex: 1;
+  max-width: 720px;
+  height: 490px;
+}
+
+/* ===== 数値ボタン：青 → 赤グラデーション ===== */
+.numButtons button {
+  color: white;
+  border: none;
+  font-weight: bold;
+}
+
+/* 選択中は少し強調 */
+.numButtons button.selected {
+  outline: 3px solid #333;
+}
+
+/* 入力ブロック全体 */
+.inputBlock {
+  margin-bottom: 16px;
+}
+
+/* ラベルはブロック表示にする */
+.inputLabel {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+/* 数値ボタン＋下のラベルを「セット」で扱う */
+.scaleWrap {
+  display: inline-block; /* ボタン列の幅に合わせる */
+}
+
+/* 数値スケール説明テキスト */
+.scaleText {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #555;
+  margin: 4px;
+}

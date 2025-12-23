@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>疲労管理アプリ - ポスター用</title>
+  <link rel="stylesheet" href="poster.css">
+
+  <!-- FullCalendar & Chart.js -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>疲労管理アプリ</h1>
+  <button id="toGraphBtn">グラフを表示する</button>
+
+  <div id="posterLayout">
+    <!-- 左：カレンダー -->
+    <div id="calendarContainer">
+      <div id="calendar"></div>
+    </div>
+
+    <!-- 右：入力フォーム -->
+    <div id="formContainer">
+      <form id="recordForm">
+        <label>日付: <input type="text" id="date" readonly></label><br><br>
+
+      <div class="inputBlock">
+        <label  class="inputLabel">RPE（運動のきつさ）:</label>
+        
+        <div class="scaleWrap">
+          <div id="rpeButtons" class="numButtons"></div>
+          <div class="scaleText">
+            <span>楽</span>
+            <span>きつい</span>
+          </div>
+        </div>
+      </div>
+
+        <label>時間:</label>
+        <select id="time"></select><br><br>
+        
+      <div class="inputBlock">
+        <label class="inputLabel">睡眠の質</label>
+
+        <div class="scaleWrap">
+          <div id="sleepButtons" class="numButtons"></div>
+          <div class="scaleText">
+            <span>良い</span>
+            <span>悪い</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inputBlock">
+        <label class="inputLabel">疲労感</label>
+
+        <div class="scaleWrap">
+          <div id="fatigueButtons" class="numButtons"></div>
+          <div class="scaleText">
+            <span>良い</span>
+            <span>悪い</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inputBlock">
+        <label class="inputLabel">ストレス</label>
+
+        <div class="scaleWrap">
+          <div id="stressButtons" class="numButtons"></div>
+          <div class="scaleText">
+            <span>良い</span>
+            <span>悪い</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inputBlock">
+        <label class="inputLabel">筋肉痛</label>
+
+        <div class="scaleWrap">
+          <div id="muscleButtons" class="numButtons"></div>
+          <div class="scaleText">
+            <span>良い</span>
+            <span>悪い</span>
+          </div>
+        </div>
+      </div>
+
+
+        <button type="submit" id="saveBtn">保存</button>
+        <button type="button" id="editBtn">修正</button>
+        <button type="button" id="deleteBtn">削除</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- グラフページ -->
+  <div id="graphPage" style="display:none;">
+    <h2>トレーニング負荷の推移</h2>
+    <div id="graphControls">
+      <label>
+        期間：
+        <input type="date" id="startDate">
+        〜
+        <input type="date" id="endDate">
+      </label>
+    </div>
+
+    <div id="graphLayout">
+      <canvas id="srpeAcwrChart"></canvas>
+      <canvas id="hooperChart"></canvas>
+    </div>
+
+  </div>
+
+  <script src="poster.js"></script>
+</body>
+</html>
