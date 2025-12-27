@@ -12,7 +12,6 @@
 </head>
 <body>
   <h1>疲労管理アプリ</h1>
-  <button id="toGraphBtn">グラフを表示する</button>
 
   <div id="posterLayout">
     <!-- 左：カレンダー -->
@@ -26,7 +25,20 @@
         <label>日付: <input type="text" id="date" readonly></label><br><br>
 
       <div class="inputBlock">
-        <label  class="inputLabel">RPE（運動のきつさ）:</label>
+        <div class="labelWithHelp">
+          <label class="inputLabel">RPE（運動のきつさ）</label>
+          <button type="button" class="helpBtn" id="rpeHelpBtn">?</button>
+        </div>
+
+        <!-- 説明（最初は非表示） -->
+        <div class="helpBox" id="rpeHelpBox">
+          <strong>RPE（運動のきつさ）とは？</strong><br>
+          RPEは、運動中に「どれくらいきつかったか」を表す主観的な指標です。<br><br>
+          ・数値が低いほど「楽」<br>
+          ・数値が高いほど「きつい」<br>
+          目安として、<br>
+          1：とても楽 ／ 5：ややきつい ／ 10：非常にきつい
+        </div>
         
         <div class="scaleWrap">
           <div id="rpeButtons" class="numButtons"></div>
@@ -37,57 +49,94 @@
         </div>
       </div>
 
-        <label>時間:</label>
-        <select id="time"></select><br><br>
-        
       <div class="inputBlock">
-        <label class="inputLabel">睡眠の質</label>
+        <label class="inputLabel">運動時間（分）</label>
+        <select id="time"></select>
+      </div>
 
-        <div class="scaleWrap">
-          <div id="sleepButtons" class="numButtons"></div>
-          <div class="scaleText">
-            <span>良い</span>
-            <span>悪い</span>
+      <div class="inputBlock">  
+        <div class="labelWithHelp">
+          <label class="inputLabel">sRPE（RPE × 運動時間）</label>
+          <button type="button" class="helpBtn" id="srpeHelpBtn">?</button>
+        </div>
+
+        <div class="helpBox" id="srpeHelpBox">
+          <strong>sRPEとは？</strong><br>
+          sRPE は「運動のきつさ（RPE）」×「運動時間（分）」で計算する、1回の練習負荷の指標です。<br>
+          数値が大きいほど、その日の負荷が高いと考えます。
+        </div>
+
+        <div id="srpeValue" class="calcBox srpeBox">-</div>
+      </div>
+
+      <div class="sectionHeader">
+        <div>
+          <div class="labelWithHelp">
+            <div class="sectionTitle">Hooper Index</div>
+            <button type="button" class="helpBtn" id="hooperHelpBtn">?</button>
           </div>
+
+          <div class="helpBox" id="hooperHelpBox">
+            <strong>Hooper Indexとは？</strong><br>
+            「睡眠の質・疲労感・ストレス・筋肉痛」の4項目を主観評価し、合計してコンディションを見ます。<br>
+            合計が高いほど、疲労が溜まっている可能性があります。
+          </div>
+        </div>
+
+        <div class="sectionScore hiScore">
+          HI合計スコア：<span id="hooperTotal">-</span>
         </div>
       </div>
 
-      <div class="inputBlock">
-        <label class="inputLabel">疲労感</label>
+      <div class="hooperGrid">
 
-        <div class="scaleWrap">
-          <div id="fatigueButtons" class="numButtons"></div>
-          <div class="scaleText">
-            <span>良い</span>
-            <span>悪い</span>
+        <div class="inputBlock">
+          <label class="inputLabel">睡眠の質</label>
+          <div class="scaleWrap">
+            <div id="sleepButtons" class="numButtons"></div>
+            <div class="scaleText">
+              <span>良い</span>
+              <span>悪い</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="inputBlock">
-        <label class="inputLabel">ストレス</label>
-
-        <div class="scaleWrap">
-          <div id="stressButtons" class="numButtons"></div>
-          <div class="scaleText">
-            <span>良い</span>
-            <span>悪い</span>
+        <div class="inputBlock">
+          <label class="inputLabel">疲労感</label>
+          <div class="scaleWrap">
+            <div id="fatigueButtons" class="numButtons"></div>
+            <div class="scaleText">
+              <span>なし</span>
+              <span>あり</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="inputBlock">
-        <label class="inputLabel">筋肉痛</label>
-
-        <div class="scaleWrap">
-          <div id="muscleButtons" class="numButtons"></div>
-          <div class="scaleText">
-            <span>良い</span>
-            <span>悪い</span>
+        <div class="inputBlock">
+          <label class="inputLabel">ストレス</label>
+          <div class="scaleWrap">
+            <div id="stressButtons" class="numButtons"></div>
+            <div class="scaleText">
+              <span>なし</span>
+              <span>あり</span>
+            </div>
           </div>
         </div>
+
+        <div class="inputBlock">
+          <label class="inputLabel">筋肉痛</label>
+          <div class="scaleWrap">
+            <div id="muscleButtons" class="numButtons"></div>
+            <div class="scaleText">
+              <span>なし</span>
+              <span>あり</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
+      <div id="errorMsg" class="errorMsg" style="display:none;"></div>
 
         <button type="submit" id="saveBtn">保存</button>
         <button type="button" id="editBtn">修正</button>
@@ -116,6 +165,9 @@
   </div>
 
   <script src="poster.js"></script>
+
+  <div id="bottomBar">
+    <button id="toGraphBtn">グラフを表示する</button>
+  </div>
 </body>
 </html>
-
