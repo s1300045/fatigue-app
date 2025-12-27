@@ -11,6 +11,38 @@ document.addEventListener("DOMContentLoaded", function () {
   createNumberButtons("stressButtons", 7);
   createNumberButtons("muscleButtons", 7);
 
+  // RPE ヘルプ表示切り替え
+  const rpeHelpBtn = document.getElementById("rpeHelpBtn");
+  const rpeHelpBox = document.getElementById("rpeHelpBox");
+
+  if (rpeHelpBtn && rpeHelpBox) {
+    rpeHelpBtn.addEventListener("click", () => {
+      rpeHelpBox.style.display =
+        rpeHelpBox.style.display === "block" ? "none" : "block";
+    });
+  }
+
+  // sRPE ヘルプ表示切り替え
+  const srpeHelpBtn = document.getElementById("srpeHelpBtn");
+  const srpeHelpBox = document.getElementById("srpeHelpBox");
+  if (srpeHelpBtn && srpeHelpBox) {
+    srpeHelpBtn.addEventListener("click", () => {
+      srpeHelpBox.style.display =
+        srpeHelpBox.style.display === "block" ? "none" : "block";
+    });
+  }
+
+  // Hooper ヘルプ表示切り替え
+  const hooperHelpBtn = document.getElementById("hooperHelpBtn");
+  const hooperHelpBox = document.getElementById("hooperHelpBox");
+
+  if (hooperHelpBtn && hooperHelpBox) {
+    hooperHelpBtn.addEventListener("click", () => {
+      hooperHelpBox.style.display =
+        hooperHelpBox.style.display === "block" ? "none" : "block";
+    });
+  }
+
   // 練習時間セレクト（5分刻み）
   const timeSelect = document.getElementById("time");
   for (let i = 0; i <= 300; i += 5) {
@@ -18,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
     option.value = i;
     option.textContent = `${i} 分`;
     timeSelect.appendChild(option);
+    timeSelect.addEventListener("change", updateComputedDisplays);
   }
 
   const calendarEl = document.getElementById("calendar");
@@ -158,6 +191,8 @@ function createNumberButtons(containerId, max) {
     btn.addEventListener("click", () => {
       [...container.children].forEach(c => c.classList.remove("selected"));
       btn.classList.add("selected");
+
+      updateComputedDisplays();
     });
 
     container.appendChild(btn);
@@ -175,6 +210,37 @@ function setSelectedValue(containerId, value) {
     c.classList.remove("selected");
     if (parseInt(c.textContent) === value) c.classList.add("selected");
   });
+}
+
+function updateComputedDisplays() {
+  // sRPE（RPE×時間）
+  const rpe = getSelectedValue("rpeButtons");
+  const timeStr = document.getElementById("time")?.value;
+  const time = timeStr ? parseInt(timeStr) : null;
+
+  const srpeEl = document.getElementById("srpeValue");
+  if (srpeEl) {
+    if (rpe != null && time != null && !Number.isNaN(time)) {
+      srpeEl.textContent = rpe * time;
+    } else {
+      srpeEl.textContent = "-";
+    }
+  }
+
+  // Hooper Index 合計（sleep+fatigue+stress+muscle）
+  const sleep = getSelectedValue("sleepButtons");
+  const fatigue = getSelectedValue("fatigueButtons");
+  const stress = getSelectedValue("stressButtons");
+  const muscle = getSelectedValue("muscleButtons");
+
+  const hooperEl = document.getElementById("hooperTotal");
+  if (hooperEl) {
+    if (sleep != null && fatigue != null && stress != null && muscle != null) {
+      hooperEl.textContent = sleep + fatigue + stress + muscle;
+    } else {
+      hooperEl.textContent = "-";
+    }
+  }
 }
 
 // 記録済みの日に赤丸を付ける
@@ -217,6 +283,11 @@ function selectDate(dateStr) {
   } else {
     resetForm();
   }
+  // selectDate の末尾に追加
+  updateComputedDisplays();
+
+  // resetForm の末尾に追加
+  updateComputedDisplays();
 }
 
 // フォームをリセット
@@ -230,14 +301,55 @@ function resetForm() {
 // 保存処理
 document.getElementById("saveBtn").addEventListener("click", function (e) {
   e.preventDefault();
+
+  // エラー表示用
+  const errorEl = document.getElementById("errorMsg");
+  const showError = (msg) => {
+    if (!errorEl) return;
+    errorEl.textContent = msg;
+    errorEl.style.display = "block";
+  };
+  const clearError = () => {
+    if (!errorEl) return;
+    errorEl.textContent = "";
+    errorEl.style.display = "none";
+  };
+
+  // ===== 入力チェック =====
+  const date = document.getElementById("date").value;
+  const rpe = getSelectedValue("rpeButtons");
+  const timeStr = document.getElementById("time").value;
+  const time = parseInt(timeStr);
+  const sleep = getSelectedValue("sleepButtons");
+  const fatigue = getSelectedValue("fatigueButtons");
+  const stress = getSelectedValue("stressButtons");
+  const muscle = getSelectedValue("muscleButtons");
+
+  const missing = [];
+  if (!date) missing.push("日付");
+  if (rpe == null) missing.push("RPE");
+  if (!timeStr || Number.isNaN(time)) missing.push("時間");
+  if (sleep == null) missing.push("睡眠の質");
+  if (fatigue == null) missing.push("疲労感");
+  if (stress == null) missing.push("ストレス");
+  if (muscle == null) missing.push("筋肉痛");
+
+  if (missing.length > 0) {
+    showError(`入力漏れがあります。未入力：${missing.join("、")}`);
+    return; // ★漏れがあるなら保存しない
+  }
+
+  clearError(); // ★全部OKならエラーを消す
+
+  // ===== ここから保存処理（今まで通り） =====
   const record = {
-    date: document.getElementById("date").value,
-    rpe: getSelectedValue("rpeButtons"),
-    time: parseInt(document.getElementById("time").value),
-    sleep: getSelectedValue("sleepButtons"),
-    fatigue: getSelectedValue("fatigueButtons"),
-    stress: getSelectedValue("stressButtons"),
-    muscle: getSelectedValue("muscleButtons")
+    date,
+    rpe,
+    time,
+    sleep,
+    fatigue,
+    stress,
+    muscle
   };
   record.srpe = record.rpe * record.time;
 
@@ -252,6 +364,30 @@ document.getElementById("saveBtn").addEventListener("click", function (e) {
 
   updateRecordedMarks(records);
   highlightSelectedDay();
+
+    // ▼ 保存後：下の「グラフ表示」ボタンを目立たせる
+  const toGraphBtn = document.getElementById("toGraphBtn");
+  if (toGraphBtn) {
+    const originalText = toGraphBtn.textContent;
+
+    // カレンダー画面にいるときだけ文言を一時変更
+    if (document.getElementById("posterLayout").style.display !== "none") {
+      toGraphBtn.textContent = "保存しました！グラフを見る";
+    }
+
+    // アニメーションを確実に再発火
+    toGraphBtn.classList.remove("pulse");
+    void toGraphBtn.offsetWidth;
+    toGraphBtn.classList.add("pulse");
+
+    setTimeout(() => {
+      if (toGraphBtn.textContent === "保存しました！グラフを見る") {
+        toGraphBtn.textContent = originalText;
+      }
+      toGraphBtn.classList.remove("pulse");
+    }, 1800);
+  }
+
 });
 
 // 修正処理
@@ -305,8 +441,23 @@ function renderGraph(days = null) {
       maintainAspectRatio: false,
       plugins: { title: { display: true, text: "sRPEとACWRの推移" } },
       scales: {
-        y: { type: "linear", position: "left" },
-        y1: { type: "linear", position: "right", grid: { drawOnChartArea: false } }
+        y: {
+          type: "linear",
+          position: "left",
+          title: {
+            display: true,
+            text: "sRPE"
+          }
+        },
+        y1: {
+          type: "linear",
+          position: "right",
+          grid: { drawOnChartArea: false },
+          title: {
+            display: true,
+            text: "ACWR"
+          }
+        }
       }
     }
   });
@@ -350,7 +501,19 @@ function renderHooperChart(days = null) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: { title: { display: true, text: "Hooper Index" } },
-      scales: { x: { stacked: true }, y: { stacked: true, min: 0, max: 28 } }
+      scales: {
+        x: { stacked: true },
+        y: {
+          stacked: true,
+          min: 0,
+          max: 28,
+          title: {
+            display: true,
+            text: "HIスコア"
+          }
+        }
+      }
+
     }
   });
 }
@@ -440,8 +603,23 @@ function renderGraphByRange(startDate, endDate) {
       maintainAspectRatio: false,
       plugins: { title: { display: true, text: "sRPEとACWRの推移" } },
       scales: {
-        y: { type: "linear", position: "left" },
-        y1: { type: "linear", position: "right", grid: { drawOnChartArea: false } }
+        y: {
+          type: "linear",
+          position: "left",
+          title: {
+            display: true,
+            text: "sRPE"
+          }
+        },
+        y1: {
+          type: "linear",
+          position: "right",
+          grid: { drawOnChartArea: false },
+          title: {
+            display: true,
+            text: "ACWR"
+          }
+        }
       }
     }
   });
@@ -483,7 +661,19 @@ function renderHooperChartByRange(startDate, endDate) {
       responsive: true,
       maintainAspectRatio: false,
       plugins: { title: { display: true, text: "Hooper Index" } },
-      scales: { x: { stacked: true }, y: { stacked: true, min: 0, max: 28 } }
+      scales: {
+        x: { stacked: true },
+        y: {
+          stacked: true,
+          min: 0,
+          max: 28,
+          title: {
+            display: true,
+            text: "HIスコア"
+          }
+        }
+      }
+
     }
   });
 }
